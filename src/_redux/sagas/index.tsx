@@ -1,7 +1,6 @@
-import { takeLatest } from "redux-saga/effects"
-import { handleGetPokemon } from "./handlers/pokemon"
+import { all, fork } from "redux-saga/effects";
+import PokemonSaga from "./handlers/pokemonSagas";
 
-
-export function* watchPokemon(){
-    yield takeLatest("GET_POKEMON", handleGetPokemon);
+export function* watchPokemon() {
+  yield all([fork(PokemonSaga)]);
 }

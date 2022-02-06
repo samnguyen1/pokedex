@@ -1,104 +1,53 @@
-import React, { useEffect, useState } from "react";
-
+import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import PokemonCard from "./components/PokemonCard";
-import pokeapi from "./api/pokeapi";
-import { Pokemon } from "./pokemonData";
-import ShowCard from "./components/ShowCard";
-import { getPokemon1
- } from "./_redux/reducers/pokemonReducer";
+import Buttons from "./components/Buttons";
+import { getPokemon } from "./_redux/reducers/pokemonReducer";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import CardHeader from "@mui/material/CardHeader";
+import AppBar from "@mui/material/AppBar";
+import { CardActions } from "@mui/material";
+import DateRangeIcon from '@mui/icons-material/DateRange';
+
 const App: React.FC = () => {
-  const [getPokemon, setPokemon] = useState<Pokemon[]>([]);
-  const [PokemonId, setPokemonId] = useState<number>(1);
-
-  const getPokemonR = async (pokemonId: number) => {
-
-    function capitalise(value: string){
-      return(value.charAt(0).toUpperCase() + value.slice(1))
-    }
- 
-    await pokeapi
-      .get(`/pokemon/${pokemonId}`)
-      .then((response) => {
-        const id = response.data.id;
-        const pokemonSprite =
-          response.data.sprites.other.dream_world.front_default;
-        const name = capitalise(response.data.name);
-        var types = "";
-        for (var index in response.data.types) {
-          var tmpTypes = capitalise(response.data.types[index].type.name);
-          if (types) {
-            types = types + "/" + tmpTypes;
-          } else {
-            types = tmpTypes;
-          }
-        }
-        var abilities = "";
-        for (var index in response.data.abilities) {
-            var tmpAbility = capitalise(response.data.abilities[index].ability.name);
-            if (abilities) {
-              if (response.data.abilities[index].is_hidden) {
-                abilities = abilities + ", " + tmpAbility + "(hidden)";
-              } else {
-                abilities = abilities + ", " + tmpAbility;
-              }              
-          }else{
-              abilities = tmpAbility
-            }
-        }
-        
-
-        setPokemonId(id);
-        setPokemon((prevPokemon) => [
-          {
-            id: id,
-            sprite: pokemonSprite,
-            name: name,
-            type: types,
-            abilities: abilities,
-          },
-        ]);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
-  };
-
   const dispatch = useDispatch();
   useEffect(() => {
-    getPokemonR(1);
-    dispatch(getPokemon1())
+    dispatch(getPokemon());
   }, [dispatch]);
 
-  const pokemonTest = useSelector((state) => state)
-  console.log(pokemonTest)
- 
-
-  const handlePrevButton = () => {
-    if (PokemonId === 1) {
-      (document.getElementById('prev') as HTMLButtonElement).disabled = true;
-    } else {
-      (document.getElementById('prev') as HTMLButtonElement).disabled = false;
-      getPokemonR(PokemonId - 1);
-    }
-  };
-
-  const handleNextButton = () => {
-    if (PokemonId === 151) {
-      (document.getElementById('next') as HTMLButtonElement).disabled = true;
-    } else {
-      (document.getElementById('prev') as HTMLButtonElement).disabled = false;
-      getPokemonR(PokemonId + 1);
-    }
-  };
+  const pokemonState = useSelector((state: any) => state);
 
   return (
     <div className="App">
-      Pokemon
-      <PokemonCard items={getPokemon} />
-      <ShowCard/>
-      <button id="prev" onClick={handlePrevButton}> PREVIOUS</button>
-      <button id="next" onClick={handleNextButton}> NEXT</button>
+      <AppBar position="static">SAM NGUYEN</AppBar>
+      <Card
+        sx={{
+          maxWidth: 345,
+          maxHeight: 500,
+          position: "absolute",
+          top: "0",
+          left: "0",
+          bottom: "0",
+          right: "0",
+          margin: "auto",
+          borderTop: 1,
+          borderColor: "red",
+          borderWidth: "thick"
+        }}
+      >
+        <CardHeader avatar = {<DateRangeIcon/>} title="Pokemon" />
+        <CardContent>
+          <PokemonCard
+            id={pokemonState.pokemon.id}
+            pokemon={pokemonState.pokemon.pokemon}
+            isLoading={pokemonState.pokemon.isLoading}
+          />
+        </CardContent>
+        <CardActions>
+          <Buttons props={pokemonState.pokemon} />
+        </CardActions>
+      </Card>
     </div>
   );
 };

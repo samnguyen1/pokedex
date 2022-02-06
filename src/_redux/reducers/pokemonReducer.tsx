@@ -2,41 +2,49 @@ import { Pokemon } from "../../model/Pokemon";
 
 const initialState = {
   id: 1,
-  pokemon: [],
+  pokemon: [] as any,
+  isLoading: false,
 };
 
-
-export const getPrevPokemon = (pokemon: Pokemon[]) => ({
+export const getPrevPokemon = () => ({
   type: "PREV_POKEMON",
-  pokemon
-})
+});
 
-export const getNextPokemon = (pokemon: Pokemon[]) => ({
+export const getNextPokemon = () => ({
   type: "NEXT_POKEMON",
-  pokemon
-})
+});
 
-export const setPokemon = (pokemon: Pokemon[]) => ({
+export const setPokemon = (id: number, pokemon: Pokemon) => ({
   type: "SET_POKEMON",
-  pokemon
-})
+  id,
+  pokemon,
+});
 
-export const getPokemon1 = () => ({
-  type: "GET_POKEMON"
-})
+export const getPokemon = () => ({
+  type: "GET_POKEMON",
+});
 
 export const pokemonReducer = (state = initialState, action: any) => {
-  const newState = { ...state };
-  newState.pokemon = action
+  let newState = { ...state };
   switch (action.type) {
+    case "GET_POKEMON":
+      newState.isLoading = false;
+      break;
     case "SET_POKEMON":
-      return{...newState};
+      newState.isLoading = false;
+      newState.id = action.id;
+      newState.pokemon = newState.pokemon.filter(
+        (item: { id: number }) => item.id !== action.id
+      );
+      newState.pokemon = [...newState.pokemon, action.pokemon];
+      break;
     case "NEXT_POKEMON":
-      newState.id += action.value;
-      return{...newState};
+      newState.isLoading = true;
+      break;
     case "PREV_POKEMON":
-      newState.id -= action.value;
-      return{...newState};
+      newState.isLoading = true;
+      break;
   }
-  return newState;
+  console.log(newState.pokemon);
+  return { ...newState };
 };
